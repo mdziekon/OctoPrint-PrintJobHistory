@@ -419,7 +419,7 @@ $(function() {
             if (localStorage[storageKey] == null){
                 localStorage[storageKey] = "25"; // default page size
             } else {
-                self.printJobHistoryTableHelper.selectedPageSize(localStorage[storageKey]);
+                self.printJobHistoryTableHelper.selectedPageSize(Number(localStorage[storageKey]));
             }
             self.printJobHistoryTableHelper.selectedPageSize.subscribe(function(newValue){
                 localStorage[storageKey] = newValue;
