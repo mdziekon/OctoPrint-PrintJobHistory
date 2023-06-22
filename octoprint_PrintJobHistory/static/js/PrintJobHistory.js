@@ -728,7 +728,20 @@ $(function() {
                 self.confirmMessageDialogData = null;
             }
 
+            const tabVisibilityObserver = new IntersectionObserver(
+                ([ intersectionEntry ]) => {
+                    self.printJobHistoryTableHelper.toggleIsInBackground(!intersectionEntry.isIntersecting);
+                },
+                {
+                    root: document.querySelector("#tabs_content"),
+                    rootMargin: "0px",
+                    threshold: 0.0001,
+                },
+            );
 
+            tabVisibilityObserver.observe(
+                document.querySelector("#tab_plugin_PrintJobHistory"),
+            );
         }
 
         self.onUserLoggedIn = function(currentUser) {
