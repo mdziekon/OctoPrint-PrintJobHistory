@@ -5,6 +5,8 @@
  * License: AGPLv3
  */
 
+const TABS_CONTENT_SELECTOR = "#tabs_content";
+const PLUGIN_TAB_SELECTOR = "#tab_plugin_PrintJobHistory";
 const DEFAULT_TABLE_PAGE_SIZE = 10;
 
 $(function() {
@@ -733,14 +735,14 @@ $(function() {
                     self.printJobHistoryTableHelper.toggleIsInBackground(!intersectionEntry.isIntersecting);
                 },
                 {
-                    root: document.querySelector("#tabs_content"),
+                    root: document.querySelector(TABS_CONTENT_SELECTOR),
                     rootMargin: "0px",
                     threshold: 0.0001,
                 },
             );
 
             tabVisibilityObserver.observe(
-                document.querySelector("#tab_plugin_PrintJobHistory"),
+                document.querySelector(PLUGIN_TAB_SELECTOR),
             );
         }
 
@@ -854,9 +856,8 @@ $(function() {
             }
         }
 
-        self.onTabChange = function(next, current){
-            //alert("Next:"+next +" Current:"+current);
-            if ("#tab_plugin_PrintJobHistory" == next){
+        self.onTabChange = function(next, current) {
+            if (PLUGIN_TAB_SELECTOR == next) {
                 //self.reloadTableData();
             }
         }
