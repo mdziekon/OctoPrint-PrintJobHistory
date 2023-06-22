@@ -455,6 +455,13 @@ $(function() {
 
         ///////////////////////////////////////////////////// START: SETTINGS
         self.busyIndicatorActive = ko.observable(false);
+        self.isLoadingTablePage = ko.observable(false);
+
+        // Note: for some reason, Knockout binding acts up with two bindings using the same variable...
+        // Computed variable with flipped value solves the issue
+        self.isNotLoadingTablePage = ko.computed(() => {
+            return !self.isLoadingTablePage();
+        });
 
         self.downloadDatabaseUrl = ko.observable();
         self.cameraSnapShotURLAvailable = ko.observable(false);
@@ -978,6 +985,8 @@ $(function() {
 
 
         loadJobFunction = function(tableQuery, observableTableModel, observableTotalItemCount, observableCurrentItemCount){
+            self.isLoadingTablePage(true);
+
             // api-call
             self.apiClient.callLoadPrintJobsByQuery(tableQuery, function(responseData){
                 // handle response
@@ -990,6 +999,9 @@ $(function() {
                 observableCurrentItemCount(dataRows.length);
                 observableTableModel(dataRows);
 
+                self.isLoadingTablePage(false);
+            }).catch(() => {
+                self.isLoadingTablePage(false);
             });
         }
 
