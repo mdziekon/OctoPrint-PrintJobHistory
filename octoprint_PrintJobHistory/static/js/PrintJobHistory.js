@@ -420,7 +420,7 @@ $(function() {
             }
             var storageKey = "pjh.table.selectedPageSize";
             if (localStorage[storageKey] == null){
-                localStorage[storageKey] = "25"; // default page size
+                localStorage[storageKey] = `${DEFAULT_TABLE_PAGE_SIZE}`;
             } else {
                 self.printJobHistoryTableHelper.selectedPageSize(Number(localStorage[storageKey]));
             }
