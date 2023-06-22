@@ -4,6 +4,9 @@
  * Author: OllisGit
  * License: AGPLv3
  */
+
+const DEFAULT_TABLE_PAGE_SIZE = 10;
+
 $(function() {
 
     ////////////////////////////////////////////////////////////
@@ -976,7 +979,12 @@ $(function() {
             });
         }
 
-        self.printJobHistoryTableHelper = new PrintJobTableItemHelper(loadJobFunction, 25, "printStartDateTime", "all");
+        self.printJobHistoryTableHelper = new PrintJobTableItemHelper(
+            loadJobFunction,
+            DEFAULT_TABLE_PAGE_SIZE,
+            "printStartDateTime",
+            "all",
+        );
 
         // - timeframe query
         self.allTimeFrames = ko.observableArray([
