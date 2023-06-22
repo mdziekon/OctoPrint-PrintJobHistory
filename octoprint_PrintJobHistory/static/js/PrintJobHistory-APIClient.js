@@ -86,7 +86,7 @@ function PrintJobHistoryAPIClient(pluginId, baseUrl) {
     this.callLoadPrintJobsByQuery = function (tableQuery, responseHandler){
         query = _buildRequestQuery(tableQuery);
         urlToCall = this.baseUrl + "plugin/"+this.pluginId+"/loadPrintJobHistoryByQuery?"+query;
-        $.ajax({
+        return $.ajax({
             //url: API_BASEURL + "plugin/"+PLUGIN_ID+"/loadPrintJobHistory",
             url: urlToCall,
             type: "GET"

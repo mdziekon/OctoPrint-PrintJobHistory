@@ -8,6 +8,11 @@
 
     var self = this;
 
+    let isInBackground = true;
+    const scheduledTasks = {
+        _loadItems: undefined,
+    };
+
     self.loadItemsFunction = loadItemsFunction;
     self.items = ko.observableArray([]);
     self.totalItemCount = ko.observable(0);
@@ -53,9 +58,19 @@
     }
 
     // ############################################################################################### private functions
-    self._loadItems = function(){
-        var tableQuery = self.getTableQuery();
-        self.loadItemsFunction( tableQuery, self.items, self.totalItemCount, self.currentItemCount );
+    self._loadItems = function() {
+        const task = () => {
+            var tableQuery = self.getTableQuery();
+            self.loadItemsFunction( tableQuery, self.items, self.totalItemCount, self.currentItemCount );
+        };
+
+        if (!isInBackground) {
+            task();
+
+            return;
+        }
+
+        scheduledTasks._loadItems = task;
     }
 
     self.getTableQuery = function(){
@@ -100,6 +115,22 @@
         self.selectedTableItems.removeAll();
         self._loadItems();
     }
+
+
+    self.toggleIsInBackground = (setIsInBackground) => {
+        if (setIsInBackground === isInBackground) {
+            return;
+        }
+
+        isInBackground = setIsInBackground;
+
+        if (setIsInBackground) {
+            return;
+        }
+
+        scheduledTasks._loadItems?.();
+        scheduledTasks._loadItems = undefined;
+    };
 
 
     self.paginatedItems = ko.dependentObservable(function() {

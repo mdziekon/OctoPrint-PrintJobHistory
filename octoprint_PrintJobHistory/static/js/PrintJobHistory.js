@@ -4,6 +4,11 @@
  * Author: OllisGit
  * License: AGPLv3
  */
+
+const TABS_CONTENT_SELECTOR = "#tabs_content";
+const PLUGIN_TAB_SELECTOR = "#tab_plugin_PrintJobHistory";
+const DEFAULT_TABLE_PAGE_SIZE = 10;
+
 $(function() {
 
     ////////////////////////////////////////////////////////////
@@ -417,7 +422,7 @@ $(function() {
             }
             var storageKey = "pjh.table.selectedPageSize";
             if (localStorage[storageKey] == null){
-                localStorage[storageKey] = "25"; // default page size
+                localStorage[storageKey] = `${DEFAULT_TABLE_PAGE_SIZE}`;
             } else {
                 self.printJobHistoryTableHelper.selectedPageSize(Number(localStorage[storageKey]));
             }
@@ -450,6 +455,13 @@ $(function() {
 
         ///////////////////////////////////////////////////// START: SETTINGS
         self.busyIndicatorActive = ko.observable(false);
+        self.isLoadingTablePage = ko.observable(false);
+
+        // Note: for some reason, Knockout binding acts up with two bindings using the same variable...
+        // Computed variable with flipped value solves the issue
+        self.isNotLoadingTablePage = ko.computed(() => {
+            return !self.isLoadingTablePage();
+        });
 
         self.downloadDatabaseUrl = ko.observable();
         self.cameraSnapShotURLAvailable = ko.observable(false);
@@ -725,7 +737,20 @@ $(function() {
                 self.confirmMessageDialogData = null;
             }
 
+            const tabVisibilityObserver = new IntersectionObserver(
+                ([ intersectionEntry ]) => {
+                    self.printJobHistoryTableHelper.toggleIsInBackground(!intersectionEntry.isIntersecting);
+                },
+                {
+                    root: document.querySelector(TABS_CONTENT_SELECTOR),
+                    rootMargin: "0px",
+                    threshold: 0.0001,
+                },
+            );
 
+            tabVisibilityObserver.observe(
+                document.querySelector(PLUGIN_TAB_SELECTOR),
+            );
         }
 
         self.onUserLoggedIn = function(currentUser) {
@@ -838,9 +863,8 @@ $(function() {
             }
         }
 
-        self.onTabChange = function(next, current){
-            //alert("Next:"+next +" Current:"+current);
-            if ("#tab_plugin_PrintJobHistory" == next){
+        self.onTabChange = function(next, current) {
+            if (PLUGIN_TAB_SELECTOR == next) {
                 //self.reloadTableData();
             }
         }
@@ -961,6 +985,8 @@ $(function() {
 
 
         loadJobFunction = function(tableQuery, observableTableModel, observableTotalItemCount, observableCurrentItemCount){
+            self.isLoadingTablePage(true);
+
             // api-call
             self.apiClient.callLoadPrintJobsByQuery(tableQuery, function(responseData){
                 // handle response
@@ -973,10 +999,18 @@ $(function() {
                 observableCurrentItemCount(dataRows.length);
                 observableTableModel(dataRows);
 
+                self.isLoadingTablePage(false);
+            }).catch(() => {
+                self.isLoadingTablePage(false);
             });
         }
 
-        self.printJobHistoryTableHelper = new PrintJobTableItemHelper(loadJobFunction, 25, "printStartDateTime", "all");
+        self.printJobHistoryTableHelper = new PrintJobTableItemHelper(
+            loadJobFunction,
+            DEFAULT_TABLE_PAGE_SIZE,
+            "printStartDateTime",
+            "all",
+        );
 
         // - timeframe query
         self.allTimeFrames = ko.observableArray([
